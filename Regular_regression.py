@@ -10,13 +10,13 @@ if __name__ == '__main__':
     data_x = df.values 
     df = pd.read_csv('./price.csv',index_col=0)
     data_y = df.values
-    data_y = np.log(data_y)
+    data_y = np.log1p(data_y)
     scaler = StandardScaler()  
     #scaler = MinMaxScaler()
     scaler.fit(data_x)
     x_scal = scaler.transform(data_x)
-    x_train, x_test, y_train, y_test = train_test_split(data_x,data_y,test_size=0.3,random_state=41)
-    clf_ridge = RidgeCV(alphas=np.linspace(1e-3,100,100)).fit(x_train,y_train)
+    x_train, x_test, y_train, y_test = train_test_split(x_scal,data_y,test_size=0.3,random_state=41)
+    clf_ridge = RidgeCV(alphas=np.linspace(1e-3,1000,100)).fit(x_train,y_train)
     #clf_ridge = Ridge(alpha=10).fit(x_train,y_train)
     print("Ridge alpha = " + str(np.round(clf_ridge.alpha_,4)))
     #print(clf_ridge.coef_)

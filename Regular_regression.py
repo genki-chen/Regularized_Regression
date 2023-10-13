@@ -1,10 +1,10 @@
-import os
 import numpy as np
-from sklearn.linear_model import Ridge, RidgeCV, LassoCV, ElasticNetCV, OrthogonalMatchingPursuitCV, LarsCV
+#from sklearn.linear_model import RidgeCV, LassoCV, ElasticNetCV, OrthogonalMatchingPursuitCV, LarsCV
+from sklearn.linear_model import Ridge, Lasso, ElasticNet, LinearRegression
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler, MinMaxScaler, LabelEncoder
 from sklearn.model_selection import train_test_split
 import pandas as pd
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from operator import itemgetter
 
 
@@ -41,10 +41,14 @@ if __name__ == '__main__':
     scaler.fit(data_raw)
     x_scal = scaler.transform(data_raw)
     ## 数据分成训练集，测试集
-    x_train, x_test, y_train, y_test = train_test_split(x_scal,data_y,test_size=0.3,random_state=321)
+    x_train, x_test, y_train, y_test = train_test_split(x_scal,data_y,test_size=0.3,random_state=1)
+    ## OLS
+    clf_ols = LinearRegression().fit(x_train,y_train)
+    print("OLS score = "+str(np.max([np.round(clf_ols.score(x_test,y_test),4),0])))
+    print("===========================================")
     ## 岭回归
-    clf_ridge = RidgeCV(alphas=np.logspace(-3,2,500)).fit(x_train,y_train)
-    #clf_ridge = Ridge(alpha=0.01).fit(x_train,y_train)
+    #clf_ridge = RidgeCV(alphas=np.logspace(-3,2,500)).fit(x_train,y_train)
+    clf_ridge = Ridge(alpha=7).fit(x_train,y_train)
     if show_ridge_b:
         Ridge_coef = clf_ridge.coef_
         coef_dict = {}
@@ -59,11 +63,12 @@ if __name__ == '__main__':
             count += 1
             if count > show_Top_num:
                 break
-    print("Ridge alpha = " + str(np.round(clf_ridge.alpha_,4)))
+    #print("Ridge alpha = " + str(np.round(clf_ridge.alpha_,4)))
     print("Ridge score = "+ str(np.round(clf_ridge.score(x_test,y_test),4)))
     print("===========================================")
     ## Lasso回归
-    clf_lasso = LassoCV(cv=5,random_state=0,alphas=np.logspace(-4,2,100),max_iter=10000,n_jobs=-1).fit(x_train,y_train)
+    #clf_lasso = LassoCV(cv=5,random_state=0,alphas=np.logspace(-4,2,100),max_iter=10000,n_jobs=-1).fit(x_train,y_train)
+    clf_lasso = Lasso(alpha=0.0005).fit(x_train,y_train)
     if show_lasso_b:
         Lasso_coef = clf_lasso.coef_
         coef_dict = {}
@@ -78,11 +83,12 @@ if __name__ == '__main__':
             count += 1
             if count > show_Top_num:
                 break
-    print("Lasso alpha = " + str(np.round(clf_lasso.alpha_,4)))
+    #print("Lasso alpha = " + str(np.round(clf_lasso.alpha_,4)))
     print("Lasso score = " + str(np.round(clf_lasso.score(x_test,y_test),4)))
     print("===========================================")
     ## 弹性网
-    clf_elasticNet = ElasticNetCV(l1_ratio=np.linspace(0.1,1,11),alphas=np.logspace(-4,2,100),random_state=0,max_iter=10000,n_jobs=-1).fit(x_train,y_train)
+    #clf_elasticNet = ElasticNetCV(l1_ratio=np.linspace(0.1,1,11),alphas=np.logspace(-4,2,100),random_state=0,max_iter=10000,n_jobs=-1).fit(x_train,y_train)
+    clf_elasticNet = ElasticNet(l1_ratio=0.05,alpha=0.0019).fit(x_train,y_train)
     if show_ElasticNet_b:
         ElasticNet_coef = clf_elasticNet.coef_
         coef_dict = {}
@@ -97,8 +103,8 @@ if __name__ == '__main__':
             count += 1
             if count > show_Top_num:
                 break
-    print("ElasticNet alpha = " + str(np.round(clf_elasticNet.alpha_,4)))
-    print("ElasticNet l1_ratio = " + str(np.round(clf_elasticNet.l1_ratio_,2)))
+    #print("ElasticNet alpha = " + str(np.round(clf_elasticNet.alpha_,4)))
+    #print("ElasticNet l1_ratio = " + str(np.round(clf_elasticNet.l1_ratio_,2)))
     print("ElasticNet score = " + str(np.round(clf_elasticNet.score(x_test,y_test),4)))
 
     #clf_lars = LarsCV(eps=1e-2).fit(x_train,y_train.ravel())

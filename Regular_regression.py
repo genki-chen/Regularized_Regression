@@ -9,19 +9,18 @@ from operator import itemgetter
 
 
 if __name__ == '__main__':
-    """
-    df = pd.read_csv('./cc.csv',index_col=0)
-    data_x = df.values 
-    val_title = df.columns
-    df = pd.read_csv('./price.csv',index_col=0)
-    data_y = df.values
-    """
     ## 预设置
-    show_ridge_b = True
+    show_ridge_b = False
     show_lasso_b = False
-    show_ElasticNet_b = False
+    show_ElasticNet_b = True
     show_Top_num = 20
     ## 读取数据
+    df = pd.read_csv('./x_data_precode.csv',index_col=0)
+    data_raw = df.values 
+    val_title = df.columns
+    df = pd.read_csv('./price.csv',index_col=0)
+    price = df.values.reshape(-1,)
+    """
     df = pd.read_csv('./raw_data.csv',index_col=0)
     df.fillna('None',inplace=True)
     data_raw = df.loc[:,df.columns != 'Sale_Price'].values
@@ -34,16 +33,17 @@ if __name__ == '__main__':
         if type(data_raw[0,idx]) == str:
             le.fit(data_raw[:,idx])
             data_raw[:,idx] = le.transform(data_raw[:,idx]) + 1
+    """
     ## 数据预处理
     data_y = np.log1p(price)
-    scaler = StandardScaler()  
-    #scaler = MinMaxScaler()
+    #scaler = StandardScaler()  
+    scaler = MinMaxScaler()
     scaler.fit(data_raw)
     x_scal = scaler.transform(data_raw)
     ## 数据分成训练集，测试集
-    x_train, x_test, y_train, y_test = train_test_split(x_scal,data_y,test_size=0.7,random_state=12)
+    x_train, x_test, y_train, y_test = train_test_split(x_scal,data_y,test_size=0.3,random_state=321)
     ## 岭回归
-    clf_ridge = RidgeCV(alphas=np.linspace(1e-3,1000,100)).fit(x_train,y_train)
+    clf_ridge = RidgeCV(alphas=np.logspace(-3,2,500)).fit(x_train,y_train)
     #clf_ridge = Ridge(alpha=0.01).fit(x_train,y_train)
     if show_ridge_b:
         Ridge_coef = clf_ridge.coef_
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     print("Ridge score = "+ str(np.round(clf_ridge.score(x_test,y_test),4)))
     print("===========================================")
     ## Lasso回归
-    clf_lasso = LassoCV(cv=5,random_state=0).fit(x_train,y_train.ravel())
+    clf_lasso = LassoCV(cv=5,random_state=0,alphas=np.logspace(-4,2,100),max_iter=10000,n_jobs=-1).fit(x_train,y_train)
     if show_lasso_b:
         Lasso_coef = clf_lasso.coef_
         coef_dict = {}
@@ -79,10 +79,10 @@ if __name__ == '__main__':
             if count > show_Top_num:
                 break
     print("Lasso alpha = " + str(np.round(clf_lasso.alpha_,4)))
-    print("Lasso score = " + str(np.round(clf_lasso.score(x_test,y_test.ravel()),4)))
+    print("Lasso score = " + str(np.round(clf_lasso.score(x_test,y_test),4)))
     print("===========================================")
     ## 弹性网
-    clf_elasticNet = ElasticNetCV(l1_ratio=np.linspace(0.1,1,11),random_state=0).fit(x_train,y_train.ravel())
+    clf_elasticNet = ElasticNetCV(l1_ratio=np.linspace(0.1,1,11),alphas=np.logspace(-4,2,100),random_state=0,max_iter=10000,n_jobs=-1).fit(x_train,y_train)
     if show_ElasticNet_b:
         ElasticNet_coef = clf_elasticNet.coef_
         coef_dict = {}
@@ -99,9 +99,9 @@ if __name__ == '__main__':
                 break
     print("ElasticNet alpha = " + str(np.round(clf_elasticNet.alpha_,4)))
     print("ElasticNet l1_ratio = " + str(np.round(clf_elasticNet.l1_ratio_,2)))
-    print("ElasticNet score = " + str(np.round(clf_elasticNet.score(x_test,y_test.ravel()),4)))
+    print("ElasticNet score = " + str(np.round(clf_elasticNet.score(x_test,y_test),4)))
 
-    #clf_lars = LarsCV().fit(x_train,y_train.ravel())
+    #clf_lars = LarsCV(eps=1e-2).fit(x_train,y_train.ravel())
     #print(clf_lars.score(x_test,y_test.ravel()))
     #clf_omp = OrthogonalMatchingPursuitCV().fit(x_train,y_train.ravel())
     #print(clf_omp.score(x_test,y_test.ravel()))

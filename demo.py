@@ -23,7 +23,6 @@ if __name__ == '__main__':
     scaler = MinMaxScaler()
     scaler.fit(data_raw)
     x_scal = scaler.transform(data_raw)
-
     MSE_arr = np.zeros((len(test_rate_list),repeat_num,3))
     for idx_i in range(len(test_rate_list)):
         for idx_j in range(repeat_num):
@@ -45,9 +44,9 @@ if __name__ == '__main__':
     MSE_mean = np.mean(MSE_arr,axis=1)
     print(MSE_mean.shape)
     fig = plt.figure(figsize=(16,10),dpi=300)
-    plt.plot((1-test_rate_list)*100,MSE_mean[:,0],lw=2,ls='-',color='blue',label='Ridge')
-    plt.plot((1-test_rate_list)*100,MSE_mean[:,1],lw=2,ls='-.',color='red',label='Lasso')
-    plt.plot((1-test_rate_list)*100,MSE_mean[:,2],lw=2,ls='--',color='g',label='ElasticNet')
+    plt.plot((1-test_rate_list)*100,MSE_mean[:,0],lw=2,ls='-',color='r',label='Ridge')
+    plt.plot((1-test_rate_list)*100,MSE_mean[:,1],lw=2,ls='-.',color='g',label='Lasso')
+    plt.plot((1-test_rate_list)*100,MSE_mean[:,2],lw=2,ls='--',color='b',label='ElasticNet')
     plt.xlabel('Training set size(%)')
     plt.ylabel('MSE')
     plt.legend(loc=1,fontsize='large',framealpha=0.7)

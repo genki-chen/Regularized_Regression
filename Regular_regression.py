@@ -14,7 +14,7 @@ from sklearn.metrics import mean_squared_error
 if __name__ == '__main__':
     ## 预设置
     show_ridge_b = False
-    show_lasso_b = True
+    show_lasso_b = False
     show_ElasticNet_b = False
     show_Top_num = 10
     ## 读取数据
@@ -123,7 +123,7 @@ if __name__ == '__main__':
         sorted_dict = sorted(coef_list, key=lambda x: np.abs(x['coff_val']),reverse=True)
         count = 1  # 用于计数前10个键值对
         for dicts in sorted_dict:
-            print(str(count)+' ,'+dicts['coff_name']+' ,'+str(np.round(dicts['coff_val'],4)))
+            print(str(count)+', '+dicts['coff_name']+', '+str(np.round(dicts['coff_val'],4)))
             count += 1
             if count > show_Top_num:
                 break
@@ -176,7 +176,7 @@ if __name__ == '__main__':
     plt.scatter(np.arange(len(y_test)),res_log_elasticNet,c='b',label=mse_elasticNet,alpha=0.5,edgecolors='none')
     plt.legend(loc=1,fontsize='large',framealpha=0.7)
     plt.xlabel('Test idx.')
-    plt.ylabel('log(residual)')
+    plt.ylabel('Residual')
     plt.yscale('log')
     plt.grid(True,which='both',linestyle='--',axis='both')
     plt.savefig('7.png')

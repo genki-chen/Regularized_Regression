@@ -57,12 +57,24 @@ if __name__ == '__main__':
     df = df.drop(df[(df['Gr_Liv_Area']>4000)&(df['Sale_Price']<12.5)].index)
     df = df.drop(df[(df['Gr_Liv_Area']<1000)&(df['Sale_Price']<10)].index)
     data_raw = df.loc[:,df.columns != 'Sale_Price'].values 
+    data_raw = data_raw[:,(data_raw!=0).any(axis=0)]
     val_title = df.loc[:,df.columns != 'Sale_Price'].columns
     data_y = df['Sale_Price'].values
     #scaler = StandardScaler()  
     scaler = MinMaxScaler()
     scaler.fit(data_raw)
     x_scal = scaler.transform(data_raw)
+    """
+    all_data = np.zeros((x_scal.shape[0],x_scal.shape[1]+1))
+    all_data[:,:x_scal.shape[1]] = x_scal
+    all_data[:,x_scal.shape[1]] = data_y
+    coff_arr = np.corrcoef(all_data,rowvar=False)
+    fig = plt.figure()
+    sns.heatmap(coff_arr, square=True, annot= False)
+    plt.savefig('./0.png')
+    plt.close(fig)
+    """
+
     ## 数据分成训练集，测试集
     x_train, x_test, y_train, y_test = train_test_split(x_scal,data_y,test_size=0.3,random_state=31)
     ## OLS
@@ -168,7 +180,7 @@ if __name__ == '__main__':
     var_res_net = np.var(res_log_elasticNet)
     mse_elasticNet = "ElasticNet MSE = "+str(np.round(mean_squared_error(y_test,y_test_pre),4))+" and Var(res.) = "+"{:.2e}".format(var_res_net)
     print("ElasticNet score = " + str(np.round(clf_elasticNet.score(x_test,y_test),4)))
-
+    """
     fig = plt.figure(figsize=(14,8),dpi=300)
     plt.scatter(np.arange(len(y_test)),res_log_ols,c='orange',label=mse_ols,alpha=0.5,edgecolors='none')
     plt.scatter(np.arange(len(y_test)),res_log_ridge,c='r',label=mse_ridge,alpha=0.5,edgecolors='none')
@@ -180,6 +192,7 @@ if __name__ == '__main__':
     plt.yscale('log')
     plt.grid(True,which='both',linestyle='--',axis='both')
     plt.savefig('7.png')
+    """
 
     #clf_lars = LarsCV(eps=1e-2).fit(x_train,y_train.ravel())
     #print(clf_lars.score(x_test,y_test.ravel()))
